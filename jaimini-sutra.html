@@ -282,6 +282,9 @@ footer.page{
 .empty-state.show{ display:block; }
 
 /* ================= MOBILE ================= */
+html, body{ overflow-x:hidden; max-width:100%; }
+.shell{ max-width:100%; }
+
 @media (max-width: 880px){
   .shell{ grid-template-columns: 1fr; }
 
@@ -313,9 +316,30 @@ footer.page{
 
   .rule-box{ padding:14px 14px; font-size:14.5px; }
   table.jt{ font-size:11.5px; }
-  table.jt th, table.jt td{ padding:6px 8px; white-space:nowrap; }
+  table.jt th, table.jt td{ padding:6px 8px; }
 
   .chiprow{ margin:16px 0 4px; }
+
+  /* --- nested flex rows: force wrap/stack instead of overflowing --- */
+  .argala-focus-row{ flex-direction:column; align-items:stretch; gap:10px; }
+  .argala-focus-row .chiprow{ margin:0; width:100%; }
+  #argalaResetBtn{ margin-left:0 !important; align-self:flex-start; }
+
+  .finder-card{ padding:14px 16px; gap:12px; }
+
+  /* --- kartari diagram: stack the three-column rows --- */
+  .kd-three{ flex-direction:column; }
+  .kd-three .kd-cell{
+    border-right:none; border-bottom:1px dashed var(--line);
+    text-align:left; padding:10px 14px;
+  }
+  .kd-three .kd-cell:last-child{ border-bottom:none; }
+  .kd-quiet{ display:none; }
+
+  .ar-card{ padding:12px 14px; }
+  .ar-card .ar-body{ font-size:14px; }
+
+  table.argala-house-table{ font-size:13px; }
 }
 
 @media (max-width: 480px){
@@ -323,9 +347,11 @@ footer.page{
   .brand-mark{ width:28px; height:28px; }
   .hero h2{ font-size:24px; }
   .searchwrap input{ font-size:16px; } /* prevents iOS auto-zoom on focus */
+  .planet-toggle{ padding:3px 6px; font-size:10px; }
 }
 </style>
 </head>
+
 <body>
 
 <div class="stars"></div>
@@ -344,7 +370,7 @@ footer.page{
         <small>ICAS · Notes by U.K. Mehendale | Kiran Karunakaran</small>
       </div>
     </div>
-    <p class="tagline">A study companion for Aspects, Karakāṁśa, Upapada and Argalā — the Jaimini Paddhati, laid out for reading, searching and cross‑reference.</p>
+    <p class="tagline">A study companion for Aspects, Karakāṁśa, Upapada, Argalā, Special Lagnas and Special Daśās — the Jaimini Paddhati, laid out for reading, searching and cross‑reference.</p>
 
     <div class="searchwrap">
       <svg viewBox="0 0 24 24" fill="none" stroke="#C9A227" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -352,7 +378,7 @@ footer.page{
     </div>
     <div class="search-count" id="searchCount"></div>
 
-    <div class="navgroup-label">Four Topics</div>
+    <div class="navgroup-label">Six Topics</div>
 
     <button class="tabbtn active" data-tab="karakamsha">
       <svg class="rashi-icon" viewBox="0 0 40 40" fill="none"><rect x="20" y="4" width="22.6" height="22.6" transform="rotate(45 20 15.3)" stroke="#DEC46B" stroke-width="1.1"/><rect x="20" y="15.3" width="8" height="8" transform="rotate(45 20 19.3)" fill="#C9A227"/></svg>
@@ -369,6 +395,14 @@ footer.page{
     <button class="tabbtn" data-tab="argala">
       <svg class="rashi-icon" viewBox="0 0 40 40" fill="none"><rect x="20" y="4" width="22.6" height="22.6" transform="rotate(45 20 15.3)" stroke="#DEC46B" stroke-width="1.1"/><rect x="4" y="15.3" width="8" height="8" transform="rotate(45 8 19.3)" fill="#6B8068"/><rect x="20" y="15.3" width="8" height="8" transform="rotate(45 24 19.3)" fill="#6B8068"/><rect x="20" y="31.3" width="8" height="8" transform="rotate(45 24 35.3)" fill="#6B8068"/></svg>
       <span class="label"><b>Argalā</b><span>Topic 4 · Rules &amp; tables</span></span>
+    </button>
+    <button class="tabbtn" data-tab="lagnas">
+      <svg class="rashi-icon" viewBox="0 0 40 40" fill="none"><rect x="20" y="4" width="22.6" height="22.6" transform="rotate(45 20 15.3)" stroke="#DEC46B" stroke-width="1.1"/><circle cx="20" cy="19.3" r="4.5" fill="#B08BC9"/></svg>
+      <span class="label"><b>Special Lagnas</b><span>Hora, Ghati, Bhava &amp; more</span></span>
+    </button>
+    <button class="tabbtn" data-tab="dashas">
+      <svg class="rashi-icon" viewBox="0 0 40 40" fill="none"><rect x="20" y="4" width="22.6" height="22.6" transform="rotate(45 20 15.3)" stroke="#DEC46B" stroke-width="1.1"/><path d="M14 19.3 L20 13.3 L26 19.3 L20 25.3 Z" fill="#C97A5B"/></svg>
+      <span class="label"><b>Special Daśās</b><span>MD/AD combinations</span></span>
     </button>
 
     <div class="sidebar-footer">
@@ -665,11 +699,262 @@ footer.page{
       </div>
     </section>
 
+    <!-- ---------------- SPECIAL LAGNAS PANEL ---------------- -->
+    <section class="panel" id="panel-lagnas" style="display:none;">
+      <div class="hero">
+        <div class="eyebrow">Reference</div>
+        <h2>Special Lagnas</h2>
+        <p>Beyond the rising sign, Jaimini works with several other calculated "Lagnas" — points derived from time or from other Lagnas — each reading a different layer of the native's life: wealth, authority, inner temperament, career, conception, and political power.</p>
+      </div>
+
+      <div class="chiprow" id="chipsLagnas"></div>
+
+      <div class="section-block" id="lg-hora">
+        <div class="section-head"><h3>1 · Hora Lagna (HL)</h3><span class="count">Wealth &amp; finance</span></div>
+        <div class="rule-box">
+          <h4>What it shows</h4>
+          <p>A special rising point used to judge wealth, financial prosperity and material resources — reflecting the 2nd and 4th house features for a native. It shows financial potential and how money is attracted; the HL lord acts as a key wealth‑giver, and its placement highlights where and how finances build up. If the regular Lagna is weak but HL is strong, significant financial success is still possible. The Dasha of the sign holding Hora Lagna is known to enhance earnings and wealth.</p>
+          <h4 style="margin-top:14px;">Calculation (per Sri B.V. Raman)</h4>
+          <p>The interval between sunrise and time of birth is the <b>Ishta Kala</b>. Hora Lagna = Ishta Kala (in ghatis) ÷ 2.5 ghatis — or equivalently, Ishta Kala in minutes ÷ 60. Take the quotient, add 1, and multiply the decimal remainder by 30 for degrees. Count that many signs (n+1) from the Lagna if the Lagna is an <b>even</b> sign, or from the <b>Sun's</b> sign if the Lagna is odd.</p>
+          <h4 style="margin-top:14px;">Worked example — Indira Gandhi</h4>
+          <p>Sunrise 6:26 am, birth 23:11 hrs → interval = 16h45' = 1005 minutes. 1005 ÷ 60 = 16.75 → quotient 16, +1 = 17. Lagna (Cancer) is even, so count 17 signs from the Janma Lagna → <b>Scorpio, 22°</b>.</p>
+          <h4 style="margin-top:14px;">Reading the planets on HL</h4>
+          <p>Jupiter on HL → prosperity through teaching, counsel, or trade in valued goods. Venus → refinement, relationships and the arts woven into the same wealth. A well‑placed Mercury → commerce, education, skilful exchange. A malefic on HL without benefic relief can describe wealth that arrives under strain, drains through conflict, or fails to build security despite real earnings; Saturn specifically may constrict money early in life and later build slow, durable prosperity. HL does not decide by itself whether a life is prosperous — it describes the character and timing of wealth.</p>
+        </div>
+      </div>
+
+      <div class="section-block" id="lg-ghati">
+        <div class="section-head"><h3>2 · Ghati (Ghatika) Lagna (GL)</h3><span class="count">Authority &amp; command</span></div>
+        <div class="rule-box">
+          <h4>What it shows</h4>
+          <p>Advances one sign for every ghati (24 minutes) — cycling through all twelve signs in five hours, five times over a full day. It is concerned with authority, recognition and the capacity to command, reflecting the 5th and 10th house features for power, authority, success and influence. The Dasha of the sign holding Ghatika Lagna is known to enhance status — promotion, election to a coveted post, alliance with a respectable family, or new births in the family.</p>
+          <h4 style="margin-top:14px;">Calculation</h4>
+          <p>Divide the minutes elapsed from sunrise to time of birth by 24. The quotient +1 gives the ghati in progress; count that many houses from the Lagna, always in the <b>clockwise</b> direction, to find the Ghatika Lagna.</p>
+          <h4 style="margin-top:14px;">Worked example — Indira Gandhi</h4>
+          <p>Elapsed time = 1005 minutes. 1005 ÷ 24 = quotient 41, remainder 21 → the 42nd ghati is in progress. Counting 42 houses (i.e. mod 12) clockwise from the Lagna gives <b>Sagittarius</b>.</p>
+          <h4 style="margin-top:14px;">Reading the planets on GL</h4>
+          <p>Benefics like Jupiter or Venus here can grant fame and an easy rise to power. Malefics like Saturn or Mars bring authority through struggle, discipline, or technical fields. A well‑supported Sun (the natural significator of authority) strengthens genuine standing; Jupiter's influence is the respected adviser rather than the commander; Mars brings power held through force and the will to contend; Saturn describes authority that is heavy, slow to arrive, and bound up with duty and the management of large structures.</p>
+        </div>
+      </div>
+
+      <div class="section-block" id="lg-bhava">
+        <div class="section-head"><h3>3 · Bhava Lagna (BL)</h3><span class="count">Inner temperament</span></div>
+        <div class="rule-box">
+          <h4>What it shows</h4>
+          <p>Reflects the ethereal personality of the native — the deepest, essential nature of the person. It moves through the entire zodiac in 24 hours, tracking the physical body's vitality, physiological growth, and the overall unfolding of life's path; a strong house activated from the Bhava Lagna gives pronounced results tied to that house's physical or material significations.</p>
+          <p style="margin-top:10px;">Where the Ascendant reveals the manifested self — the concrete expression of embodiment, temperament and karmic structure — the Bhāva Lagna may reflect the internal framework through which the native interprets and navigates that reality. When the two differ, there can be a subtle incongruence between one's inherent disposition and one's psychological approach to life: the strength and temperament of a lion approached cautiously, like a mouse, or an outwardly assertive constitution paired with an inward pull toward gentleness or hesitation. This tension is not necessarily harmful — it can itself become a source of adaptability, self‑reflection or unusual depth.</p>
+          <h4 style="margin-top:14px;">Calculation</h4>
+          <p>Convert the Ishta Kala into ghatis and divide by 5 (each sign takes 2 hours = 5 ghatis) to get quotient n. Count (n+1) signs from the Lagna if it is an <b>even</b> sign, or from the <b>Sun's</b> sign if odd; the decimal remainder ×30 gives the degrees.</p>
+          <h4 style="margin-top:14px;">Worked example — Indira Gandhi</h4>
+          <p>Ishta Kala 1005 minutes ÷ 120 (5 ghatis = 120 minutes) = 8.37 → n = 8, +1 = 9th. Lagna (Cancer) is even, so count 9 signs from Cancer → Pisces; 0.37 × 30 = 11° → <b>Bhava Lagna = Pisces, 11°</b>.</p>
+        </div>
+      </div>
+
+      <div class="section-block" id="lg-varnada">
+        <div class="section-head"><h3>4 · Varnada Lagna (VL)</h3><span class="count">Career &amp; social role</span></div>
+        <div class="rule-box">
+          <h4>What it shows</h4>
+          <p>Refers to inherent professional inclination, social role, and the environment the native naturally thrives in — intellectual, administrative, commercial, or service‑oriented. It shows the professional duties, societal contribution, and class of work naturally projected — in short, the kind of work the world pulls the native into. Planets in or aspecting Varnada show the support or challenge faced in a career path.</p>
+          <h4 style="margin-top:14px;">Varṇa by sign and by planet</h4>
+          <p>Fire signs → Kshatriya (roles taking initiative). Water signs → Brahmin (emotional, creative, or supportive work). Earth signs → Vaishya (structured, practical work). Air signs → Shudra (communication, logic, technology). By planet: Sun &amp; Mars indicate Kshatriya; Jupiter &amp; Venus indicate Brahmin; Moon &amp; Mercury indicate Vaishya; Saturn indicates Shudra. The nodes (Rahu/Ketu) go against the norms of society, and of Varṇa, altogether.</p>
+          <h4 style="margin-top:14px;">Calculation</h4>
+          <p>Based on the Hora Lagna and the birth Lagna — whether each is odd or even decides the counting method.</p>
+          <ol>
+            <li>For each of HL and Lagna: if in an <b>odd</b> sign, count forward from Aries to that sign. If in an <b>even</b> sign, count in reverse from Pisces to that sign.</li>
+            <li>Add the two counts if HL and Lagna share the same oddity (both odd or both even) — subtracting multiples of 12 as needed. If they differ in oddity, take the <b>difference</b> instead. The result is always an even number.</li>
+            <li>Count that resulting number of signs from Aries (forward) if the Lagna is odd, or from Pisces (in reverse) if the Lagna is even — this is the Varnada Lagna.</li>
+          </ol>
+          <h4 style="margin-top:14px;">Effects by house from Lagna</h4>
+          <ul>
+            <li><b>Kendra to Lagna:</b> support of society and family in initiating a career (natural benefics owning/occupying VL strengthen this; malefics bring strife instead). Moon in VL aspecting the 9th or its lord → an easy start to career; if that Moon is afflicted, considerable mental turmoil and the work suffers.</li>
+            <li><b>Trine to Lagna:</b> good adaptability to any community and its laws; a benefic VL lord → easy adaptation and strong support for colleagues (afflicted → tormented by colleagues, difficult office life).</li>
+            <li><b>Dusthana (6th/8th/12th):</b> shying away from community, a preference for seclusion — reasons read from the dusthana lord's nature. In the <b>12th</b> specifically: highly antisocial, and (with supporting factors) can show a demonical attitude enabling unlawful acts; a debilitated lord means being troubled by demonical people, needing to battle them if Mars is associated; an exalted dispositor or Nichabhanga Rajayoga on the lord brings success against that opposition. VL in the 12th tends to force the native away from home to find fortune elsewhere.</li>
+            <li><b>2nd house:</b> an honest worker, with high and admirable social standing conducive to Raja Yoga (a benefic lord associated with another benefic → Raja Yoga through family; afflicted → abdication of that standing).</li>
+            <li><b>3rd house:</b> freedom from enemies, steadily improving community relations and contentment (malefic association adds enterprise and daring).</li>
+            <li><b>11th house:</b> the community becomes the source of achieving the native's desires.</li>
+          </ul>
+          <p style="margin-top:10px; color:#A79E80; font-size:14.5px;">Final judgment is only taken after studying the lord of Varnada, the planets associated with it, and the lord's own condition.</p>
+        </div>
+      </div>
+
+      <div class="section-block" id="lg-divya">
+        <div class="section-head"><h3>5 · Divya Lagna</h3><span class="count">Status &amp; authority</span></div>
+        <div class="rule-box">
+          <h4>What it shows</h4>
+          <p>A point in the chart indicating high status, success, or high authority.</p>
+          <h4 style="margin-top:14px;">Calculation</h4>
+          <ol>
+            <li>Find the <b>Yogada Graha</b> — a planet that aspects the Janma Lagna in the Rāśi, Drekkāna <i>and</i> Navāṁśa charts together; or in the Rāśi and Navāṁśa charts; or in the Rāśi and Drekkāna charts.</li>
+            <li>If there is no Yogada Graha, use the <b>Kevala Graha</b> instead — one that aspects the Janma Lagna only in the Rāśi chart.</li>
+            <li>If neither is present, use the <b>Moon</b>.</li>
+            <li>Add the degrees/minutes of the Lagna lord and this Yogada (or Kevala, or Moon) planet; divide the sum by 12 — the result gives the Divya Lagna.</li>
+          </ol>
+          <p style="margin-top:10px;">A strong Raja Yoga is considered exceptionally auspicious when the Divya Lagna is occupied or aspected by its own lord, or by exalted planets.</p>
+        </div>
+      </div>
+
+      <div class="section-block" id="lg-savayava">
+        <div class="section-head"><h3>6 · Savayava Hora Lagna</h3><span class="count">Vṛddhi‑kāraka Hora Lagna</span></div>
+        <div class="rule-box">
+          <h4>What it shows</h4>
+          <p>Each day has 24 Horas — 12 from sunrise to sunset (Dinamaan ÷ 12 = one daytime Hora) and 12 from sunset to sunrise (Rātrimaan ÷ 12 = one nighttime Hora).</p>
+          <h4 style="margin-top:14px;">Calculation</h4>
+          <p>Find which Hora (of the 12 relevant to a day or night birth) is running at the time of birth; count that many Horas (n+1) from the Lagna — <b>clockwise</b> if the Lagna is an odd sign, <b>anticlockwise</b> if even — to reach the Savayava Hora Lagna sign. The decimal remainder ×30 gives its degrees.</p>
+          <h4 style="margin-top:14px;">Worked example — Indira Gandhi (night birth, 23:11 hrs)</h4>
+          <p>Sunset 17:09, next sunrise 6:26 → night duration = 13h17' = 797 minutes ÷ 12 = 66.41 min per Hora. Time from sunset to birth = 362 minutes ÷ 66.41 → quotient 5, remainder 0.45 → the 6th Hora (5+1) is running. Lagna (Cancer) is even, so count 6 signs anticlockwise from the Lagna → Aquarius; 0.45 × 30 = 13°30' → <b>Savayava Hora Lagna = Aquarius, 13°30'</b>.</p>
+        </div>
+      </div>
+
+      <div class="section-block" id="lg-adhana">
+        <div class="section-head"><h3>7 · Adhana Lagna (Nisheka Lagna)</h3><span class="count">Conception &amp; pre‑natal astrology</span></div>
+        <div class="rule-box">
+          <h4>What it shows</h4>
+          <p>The moment of the child's conception — a separate chart (the Adhana Kundali) is cast for that moment, fixed from the Janma Lagna and the fifth sign from the father's; the exact derivation is noted as needing further study beyond what these notes cover.</p>
+          <h4 style="margin-top:14px;">Uses</h4>
+          <p><b>Pre‑natal astrology:</b> predicting, from conception to actual birth, matters of health, the sex of the child, colour and complexion, the possibility of miscarriage, and likely personality. <b>Planning a desired birth chart:</b> in earlier times the day of conception was assessed so that a child's birth date, time and chart quality could be pre‑determined — kings reportedly used this to plan progeny of desired qualities, and the births of Kalidasa and Vyasa (and instances within the Mahabharata) are cited as legendary examples of pre‑planned Muhurtas for conception.</p>
+          <p style="margin-top:10px; color:#A79E80; font-size:14.5px;">Reference: Jaimini Sūtras, Chapter III, Pāda 4 (56 verses) — for full detail the notes point to Prof. P.S. Śāstrī's <i>Jaimini Sūtrams</i> (Ranjan Publication), pages 286–326.</p>
+          <h4 style="margin-top:14px;">Key rules</h4>
+          <ol>
+            <li>From the Adhana chart, note the Moon's longitude; each Dwadashamsha spans 2°30'. The birth chart's Moon falls in the same numbered Dwadashamsha (counted from Aries) as in the Adhana chart. <i>Worked example: Adhana Moon at 28°21' falls in the 12th Dwadashamsha, so the birth Moon should fall in Pisces.</i></li>
+            <li>Leo, Virgo, Libra, Scorpio, Aquarius and Pisces are diurnal (day) signs; the rest are nocturnal (night) signs.</li>
+            <li>If the Ascendant sign in the Adhana chart's Navāṁśa is a day sign, birth occurs in daytime; if a night sign, birth occurs at night.</li>
+            <li>In Shukla Pakṣa, the birth Moon's longitude matches the Adhana Moon's longitude (equivalently, the birth Lagna coincides with the Adhana Moon). In Krishna Pakṣa, the birth Moon is 180° from the Adhana Moon.</li>
+            <li>Birth takes place when the Sun is placed in the 3rd, 5th, or 9th sign from the Adhana Lagna.</li>
+            <li>If the Adhana Lagna is a movable, fixed, or dual sign, birth follows after 287, 292, or 281 (or 276) days respectively — two alternate day‑count sets appear in P.S. Sastry's book and need closer study.</li>
+          </ol>
+          <p style="margin-top:10px;">Parashara's cross‑check: in the D‑1 chart, find the difference in degrees between the Sun's longitude and Mandi's longitude (A); find the distance between the birth Lagna's degree and the start of the 9th sign in D‑1 (B). A + B, counted as degrees from the Sun's D‑1 longitude, gives the number of months and days from conception to actual birth.</p>
+        </div>
+      </div>
+
+      <div class="section-block" id="lg-tripravana">
+        <div class="section-head"><h3>8 · Tripravana Lagna</h3><span class="count">Political power</span></div>
+        <div class="rule-box">
+          <h4>What it shows</h4>
+          <p>Concerned with political power or authority in general.</p>
+          <h4 style="margin-top:14px;">Calculation (per Shri Iranganti Rangacharya)</h4>
+          <p>Take the longitude of the Lagna lord (measured continuously from Aries as 0°) and multiply it by 2. Add the Moon's longitude (likewise measured from Aries). Subtract multiples of 360° and keep the balance — that point in the native's chart is the Tripravana Lagna.</p>
+          <h4 style="margin-top:14px;">Effects</h4>
+          <p>An exalted or benefic planet occupying this sign causes Raja Yoga. A malefic planet placed there leads to poverty. Rahu placed in Tripravana Lagna specifically poses danger from water.</p>
+          <h4 style="margin-top:14px;">Worked example — Indira Gandhi</h4>
+          <p>Moon longitude 275°36' + Lagna‑lord longitude 275°36' + (the lord counted again, per the doubling) = 826°48'. Subtracting 720° (2×360°) leaves 106°48' — falling in Cancer, 16°48'. The Ātmakāraka (Moon, in this chart) is posited in the Tripravana Lagna here, which caused a Raja Yoga for Indira Gandhi.</p>
+        </div>
+      </div>
+
+      <div class="section-block" id="lg-tara">
+        <div class="section-head"><h3>9 · Tara Lagna</h3><span class="count">Wealth or poverty</span></div>
+        <div class="rule-box">
+          <h4>What it shows</h4>
+          <p>Used to see whether the native becomes wealthy or otherwise.</p>
+          <h4 style="margin-top:14px;">Calculation, method 1 — via the birth Vimshottari Daśā (per Shri Iranganti Rangacharya)</h4>
+          <p>Note the Daśā lord running at birth and the number of months elapsed into it. Divide the elapsed months by that Daśā's total length in years. Take the quotient +1 as the number of signs to count <b>forward</b> from the Ascendant — this gives the Tara Lagna. <i>Exception:</i> if the birth Daśā is Ketu's, count the same number of signs in <b>reverse</b> instead.</p>
+          <p style="margin-top:10px;"><b>Worked example — Indira Gandhi:</b> Sun Daśā running (total length 6 years), 48.23 months elapsed → 48.23 ÷ 6 = 8.03 → count (8+1) = 9 signs forward from the Ascendant (Cancer) → <b>Pisces, 0°9' = Tara Lagna</b>.</p>
+          <h4 style="margin-top:14px;">Calculation, method 2 — via the birth Nakṣatra (gives the same result)</h4>
+          <p>Divide the Nakṣatra span (13°20' = 800 minutes) into 12 equal parts of 66.66 minutes each; find which part the Moon has reached, and count that many signs (n+1), in the normal zodiac direction, from the Lagna. (Same Ketu exception as above: count anticlockwise instead if the birth Daśā lord is Ketu.)</p>
+          <p style="margin-top:10px;"><b>Cross‑check — Indira Gandhi:</b> Moon in Uttarashada, already 5°36' into it — on the 12‑part scale this lands in part 8 (8.04) → count 9 (8+1) signs clockwise from the Lagna → Pisces, matching method 1.</p>
+          <h4 style="margin-top:14px;">Three yogas from Tara Lagna</h4>
+          <ul>
+            <li><b>Shrīmantha Yoga</b> (fabulously rich, or a high government position): an exalted or debilitated planet occupies Tara Lagna; or its lord is exalted or debilitated; or a waxing Moon occupies Tara Lagna; or the Nakṣatra lord of the planet posited in Tara Lagna is exalted.</li>
+            <li><b>Dhana Yoga</b> (high financial position): Tara Lagna is occupied by its own lord or a friendly planet; or its lord is in its own house or a friend's house; or the planet posited in Tara Lagna has its Nakṣatra lord in its own house or a friend's house.</li>
+            <li><b>Nirdhana Yoga</b> (stays poor): Tara Lagna is occupied by an enemy planet; or its lord is placed in an enemy's sign.</li>
+          </ul>
+          <p style="margin-top:10px; color:#A79E80; font-size:14.5px;">In the Indira Gandhi chart, Tara Lagna (Pisces) is lorded by Jupiter, itself placed in Taurus — a sign inimical to Jupiter; the notes read this as pointing to wealth alongside an image of corruption.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------- SPECIAL DASHAS PANEL ---------------- -->
+    <section class="panel" id="panel-dashas" style="display:none;">
+      <div class="hero">
+        <div class="eyebrow">Reference</div>
+        <h2>Special Daśās</h2>
+        <p>Beyond a planet's general nature, certain Mahādaśā/Antardaśā combinations and planetary conditions carry their own well‑known signatures — some from classical rules (Yogakāraka, Nīcha‑bhaṅga, Combustion, Tārā), others distilled from observed practice on specific planet pairs.</p>
+      </div>
+
+      <div class="chiprow" id="chipsDashas"></div>
+
+      <div class="section-block" id="da-pairs">
+        <div class="section-head"><h3>Planetary‑Pair Daśās (MD/AD)</h3><span class="count">5 combinations</span></div>
+
+        <div class="rule-box">
+          <h4>Saturn–Venus, Venus–Saturn</h4>
+          <p>Venus rules the natural 2nd and 7th of the Kālapuruṣa, making it a Māraka graha; Saturn, natural kāraka of suffering and a natural malefic, rules the natural 11th (Bādhaka) — together the combination can create real problems. Venus governs one‑on‑one relationships, binding contracts and partnerships, luxury, wealth, love, spiritual practice and Mokṣa — its shadow side is degradation, immorality and entanglement in further karma; Venus is called the zodiac's natural Māraka, deciding when a life (or the illusion of Māyā) should end. Saturn enforces karmic repayment with strict discipline, has no tolerance for laziness, cheating or immaturity, and strips away illusions in the most direct, unemotional way — a Saturn period reveals whether a "friend" really is one. Venus and Saturn are friends, yet together they can wreck havoc: expect to be taught karma so thoroughly that the material world becomes disillusioning — a powerful horoscope turns inward toward the spiritual, a weaker one simply suffers. The most intense karmic rebalancing tends to involve the person loved and relied upon most, whose overt love or support may be withheld during these sub‑periods. Both Antardaśās run long and can feel like a confusing, fruitless roller‑coaster — arguments and conflicts with no real point, pursued anyway; by the end, the person is markedly changed. If these planets also rule important houses, the toll extends beyond the emotional/astral level into real losses — health, wealth, status, job, relationships — sometimes with strange illness, job loss, or breaks in education.</p>
+          <p style="margin-top:10px;">Effects are softer if the Ascendant is Taurus or Libra (Venus is lagna lord, Saturn the Yogakāraka), or Capricorn or Aquarius (Saturn is lagna lord), or if Venus and Saturn are otherwise capable of giving auspicious results together for that chart — this doesn't remove the trouble, only means the turmoil eventually makes sense and yields real, if delayed, gain.</p>
+        </div>
+
+        <div class="rule-box">
+          <h4>Jupiter–Venus, Venus–Jupiter</h4>
+          <p>The challenge stems from the natural enmity between these two benefics — material versus spiritual, wisdom versus desire. Jupiter represents higher knowledge, dharma and detachment; Venus governs material luxury, romance and sensual pleasure. Expect to balance moral correctness against personal comfort, relationship stress from differing values around money and family, and financial fluctuation between overspending on luxuries and Jupiter's need for prudent, ethical growth.</p>
+          <p style="margin-top:10px;">Astrologers note this pairing gives enigmatic results and, in many cases, brings real transformation — their mutual Daśās have also been observed to coincide with the death of family members, emotional turbulence, and even the native's own death if a Māraka period has arrived; the Daśās deserve particular attention for Taurus, Libra, Sagittarius and Pisces Lagnas. By natural friendship (Naisargik Maitri), Jupiter treats Venus as an enemy while Venus treats Jupiter as neutral. Per Sage Parashara, Venus's Antardaśā within Jupiter's Mahādaśā gives good results if Venus sits in a Kendra, Trikoṇa, the 11th, or its own sign under benefic aspect — happiness from vehicles, luxuries, material comfort, high position and honour. But if Venus is in the 6th, 8th or 12th from the Janma Lagna and/or from the Daśā lord Jupiter, or is debilitated — especially if also associated with Saturn/Rahu, or if Venus lords the 2nd or 7th and is afflicted by a malefic — results can turn severe, even indicating accidental death, death connected to a woman, or death from a wrong medicine. In both sub‑periods, the two "Gurus" try to teach their lessons simultaneously, creating confusion across inner spiritual practice and outer religious observance that eventually, but only eventually, resolves into something good.</p>
+        </div>
+
+        <div class="rule-box">
+          <h4>Saturn–Mercury, Mercury–Saturn</h4>
+          <p>Blends Saturn's heavy discipline, delay and hard work with Mercury's sharp intellect, communication and business skill — often bringing career growth, new logical strategy and financial focus, alongside potential mental stress or fatigue. The period favours commerce, writing, analytical work, and launching new projects or office relocations, though Saturn's energy can add overthinking, nervous tension or minor physical tiredness. Mercury's Antardaśā specifically influences speech and rewards a healthier lifestyle (yoga, gym, circulation); it strengthens ties with uncles and aunts, and brings gain or learning through schools, colleges, libraries, bookstores, printing and communication centres — a debilitated Mercury can instead bring job loss or miscommunication.</p>
+          <p style="margin-top:10px;">The combination gives strong concentration on complex tasks, a precise and practical mind that prefers hard facts to guesses, and careful, reliable speech — but if Mercury and Saturn are weak, it can bring self‑doubt, anxiety, a rigid or overly cautious communication style, and results that take longer to show up (Saturn's slow, steady path). This Daśā can also push toward juggling multiple businesses at once, diluting focus; it favours overwork, detail‑oriented career habits, and success in competitions, merit and certificates, though paperwork can be delayed and disorganised. Other possible negative impacts: lethargy, body aches, gastric trouble, loss of kinsmen, losses in ventures, bad dreams, distress to family, aimless wandering, or an inclination toward secretive, immoral pursuits.</p>
+        </div>
+
+        <div class="rule-box">
+          <h4>Sun–Rahu, Rahu–Sun</h4>
+          <p>Sun and Rahu are natural enemies, so this combination creates friction between authority, ego and ambition — sudden career moves, friction with bosses, and issues with government organisations or higher authorities. The Daśā inflates the ego and causes mental restlessness, overconfidence and confusion; stress‑related issues, eye problems, reduced immunity, heart trouble or physical fatigue can arise if the Sun is weak in the chart. If the Sun is strong, expect sudden political or corporate breakthroughs, foreign connections and a rise to the top; if the Sun is strong or benefic‑supported, leadership brings tangible results — promotions, government roles, career recognition — while a weak or afflicted Sun brings ego clashes, insecurity or strained relations with seniors.</p>
+          <p style="margin-top:10px;">The Sun doesn't work through shortcuts; Rahu will try to. Rewards in this Daśā come from consistency, following norms, respecting seniors and keeping promises. Financial prudence is tested — budgeting wisely, clearing debts, avoiding impulsive risk — against Rahu's expansive pull. The Sun rules vitality, heart, digestion, immunity and overall energy: strong and supported, it brings an active, disciplined, mentally clear period with quick recovery from illness; weak or pressured by Rahu, the body's fire element (Agni) becomes imbalanced — fatigue, dehydration, heart strain, digestive trouble, all linked to stress and a lack of routine. Rhythm is the key theme: a stable daily routine, fixed meal times and adequate sunlight help regulate energy, while overexertion, late nights and excessive caffeine or heat‑inducing food should be avoided. Rahu, meanwhile, brings forth the Sun's hunger for visibility and recognition — sudden success, travel or public attention, but also moral dilemmas about how that success is earned; ego inflation, overexposure or shortcuts can invite reversals later, though handled consciously this phase is transformative, revealing whether ambition is rooted in integrity or illusion. By the end of the Mahādaśā, most people emerge with greater emotional maturity, stronger boundaries and a clearer sense of self‑worth.</p>
+        </div>
+
+        <div class="rule-box">
+          <h4>Moon–Ketu, Ketu–Moon</h4>
+          <p>Ketu is described as a dry, "headless" planet — its Daśā dries out matters tied to the house it occupies, and shifts thinking from head to heart. As kāraka of detachment, letting go of what causes pain and no longer brings happiness can feel like relief, though the consequences of that detachment — in money, job, relationships, or place — aren't always foreseen. Understood spiritually, a Ketu Daśā is described as a boon for one's life: it detaches the native from false people, situations, careers and hopes that were only attached through material status, and teaches that life can be lived without luxuries — simple clothes, food and lifestyle revealing one's real inner strengths and weaknesses. Repeated failures during this Daśā are described as Ketu's way of teaching the most accurate method, much as playing a game many times over eventually teaches how to win it; many turn to temples and worship during this period for inner peace and strength.</p>
+          <p style="margin-top:10px;">The Moon governs mind, emotions, intuition, mother and general comfort, so a Moon‑Ketu Daśā (in either order) can bring mood swings, anxiety, over‑sensitivity, indecisiveness, and water‑related or digestive health issues — a deep clash between worldly emotion and spiritual detachment, with a strong pull toward peace, meditation or solitude replacing material ambition. Expect emotional ups and downs, restlessness or mental heaviness, a felt lack of career recognition or downturns in business, shifts in the household or distance from the mother, travel to far‑off places, and general overthinking. There can be loss of wealth and people, or pain from stomach ailments and mental unrest — loss of wealth is particularly noted toward the end of the Antardaśā, alongside obstacles in ventures from interference by enemies, quarrels, and vulnerability to disease. This is a long Daśā that reshapes life through emotion, inner peace and relationships — it rewards emotional maturity, softness with boundaries, and inner stability rather than force or aggression; career focus often shifts toward people, emotion, creativity and public dealing, with performance fluctuating alongside mood.</p>
+          <p style="margin-top:10px;">Financially, a strong Moon brings steadily improving flow through supportive connections and smart decisions; a sensitive Moon under Ketu's influence tends to increase spending on comfort, home, food, travel, or emotional coping. In relationships, feelings run more intense — warmer and more caring if the Moon is well placed, prone to misunderstanding, mood‑driven arguments, overthinking or emotional dependency if the Moon is weak. For health, sleep, hydration, gut health and stress management matter most, since a calm mind tends to steady the body. Ketu's Daśā generally enhances spiritual growth, research orientation and inward thinking, sometimes with unfruitful travel and unwanted fear; overall the pairing favours detachment, meditation, healing and a simpler, more grounded life — while a weak Moon under Ketu's influence risks confusion, emotional numbness and isolation.</p>
+        </div>
+      </div>
+
+      <div class="section-block" id="da-conditions">
+        <div class="section-head"><h3>Special‑Condition Daśās</h3><span class="count">5 conditions</span></div>
+
+        <div class="rule-box">
+          <h4>Combust Planet Daśā</h4>
+          <p>The Mahādaśā or Antardaśā of a combust planet — one sitting too close to the Sun — often brings delays, diminished vitality, and struggle in the areas that planet rules, though it does not destroy its potential outright. The planet's natural traits get "swallowed" or overshadowed by the Sun's ego, authority and heat; outcomes tied to the planet or the houses it rules manifest more slowly, quietly, or through hidden effort; recognition or reward for related hard work may go elsewhere, or meet heavy friction.</p>
+          <p style="margin-top:10px;">Combustion present in the birth chart affects a lifetime: check which houses the combust planet owns (adversely affected) and the house ruled by the Sun (atypical results). The situation is harder if the ascendant lord itself is combust; two or more combust major planets can reduce longevity. Things are better with benefic influence on the Sun‑plus‑planet duo, when the combustion falls outside the 6th, 8th and 12th houses, or when the Navāṁśa offers relief — actual severity varies chart to chart. In Vimshottari terms, the combust planet's own Mahādaśā underperforms, its sub‑periods within other Mahādaśās are affected too, and even the Sun's own Mahādaśā turns atypical — conceptually, "Sun = Sun + the combust planet," since the weaker planet transfers its essence to the Sun and the Sun's role in the chart must be read as that combination. A combust planet is considered fearful and needs a good aspect or conjunction (the support of a noble planet) for stability — without it, its effects stay unstable regardless of what they otherwise promise. If the combust planet is already dignified (exalted, own house, Mūlatrikoṇa), it is as if it welcomed this intensity: it stays focused on its aims and largely escapes the veil of combustion. Combustion is most harmful when the Sun is either lord of, or placed in, the 6th or 8th house.</p>
+        </div>
+
+        <div class="rule-box">
+          <h4>Neecha Bhaṅga (Cancelled Debilitation) Daśā</h4>
+          <p>The Daśā of a planet with cancelled debilitation typically brings a "fall and rise" pattern — early struggle, delay or humiliation transformed into eventual success, growth and authority. Neecha means debilitation, Bhaṅga means cancellation, and Rāja signals the kingly outcome that follows; classical texts, including the Bṛhat Parāśara Horā Śāstra, describe the cancelled debilitation as generating a force stronger than a planet that was simply well‑placed to begin with — the analogy is a spring pressed fully down, which releases with more energy than one never depressed at all.</p>
+          <p style="margin-top:10px;">People with this yoga tend not to rise smoothly — they typically encounter a visible period of struggle, limitation, or public failure tied to the themes of the debilitated planet, then, given the right conditions and timing, recover and exceed their original ceiling. The yoga is not about avoiding hardship; the hardship is structurally encoded as the fuel for the rise. The first half of the relevant Daśā often brings the initial hardships and testing closely tied to that planet's matters and house; the second half delivers the cancellation results — turning past failure into wisdom, competence, and a sudden or steady rise (Rāja Yoga effects).</p>
+          <p style="margin-top:10px;">Even a perfectly formed Neecha Bhaṅga Rāja Yoga lies dormant without the right Daśā timing. It typically delivers results during: (1) the Mahādaśā of the debilitated planet itself — the primary activation window, first as challenge, then as mastery if the yoga is strong; (2) the Mahādaśā of the planet that cancels the debilitation — which can activate the yoga indirectly, supporting the debilitated planet's rise from behind. Antardaśās of either planet, within a favourable Mahādaśā, can produce specific milestone events. A common pattern: the first half of the debilitated planet's own Mahādaśā brings the neecha experience — the fall, the limitation, the public struggle — while the second half, or the following Mahādaśā of the cancelling planet, delivers the Bhaṅga Rāja result; this delayed delivery is why many people don't recognise the yoga until well into their lives. Jupiter's transits over the natal position of the debilitated planet can also serve as short‑term triggers.</p>
+          <p style="margin-top:10px;"><b>Conditions that cancel a debilitation</b> (any one, present in the birth chart, can constitute a Neecha Bhaṅga): the lord of the sign where the planet is debilitated is in a Kendra (1st, 4th, 7th, or 10th) from the Ascendant or Moon; the planet that gets exalted in that same sign of debilitation is in a Kendra from the Ascendant or Moon; the debilitated planet itself is in a Kendra from the Ascendant or Moon; the lord of the debilitated planet's exaltation sign aspects it directly; or the debilitated planet is conjunct or aspected by the ruler of its own debilitation sign, creating a form of mutual recognition. For the yoga to carry the Rāja designation, at least one of these cancelling planets must simultaneously hold real strength — ideally placed in its own sign, exalted, or strongly angular; a weak canceller produces a weak cancellation. The Phaladeepika reinforces that the quality of the cancellation determines the quality of the rise.</p>
+        </div>
+
+        <div class="rule-box">
+          <h4>Yogakāraka Daśā</h4>
+          <p>According to Parāśara, lords of a Kendra and a Trikoṇa that occupy each other's house, or sit together in any house, or occupy their own house, or share a mutual aspect, become Yogakāraka — capable of making one a ruler or someone famous in their field. If a planet owns both a Kendra and a Koṇa and is positioned in either a Kendra or a Koṇa, it becomes an especially auspicious, "special" Yogakāraka — such a planet gives the results of an ordinary Yogakāraka even from other placements. Only Saturn (for Taurus and Libra Lagnas), Mars (for Cancer and Leo Lagnas) and Venus (for Capricorn and Aquarius Lagnas) can be this kind of special Yogakāraka.</p>
+          <p style="margin-top:10px;">Per Parāśara's Lagna‑wise significations: <b>Aries</b> — Sun and Jupiter are Yogakārakas, Mars neutral. <b>Taurus</b> — Saturn is Yogakāraka; Sun a benefic, Mercury less beneficial. <b>Gemini</b> — Venus is Yogakāraka; Saturn less benefic. <b>Cancer</b> — Mars is Yogakāraka; Moon and Jupiter benefics. <b>Leo</b> — Mars, Jupiter and Sun benefics, Mars is Yogakāraka, Moon neutral. <b>Virgo</b> — Mercury and Venus benefics, Sun neutral, Saturn less beneficial. <b>Libra</b> — Saturn and Mercury benefics; Moon and Mercury cited as Rāja Yoga Kārakas, Venus neutral — though the notes flag that Saturn is in fact the Rāja Yoga Kāraka for Libra. <b>Scorpio</b> — Sun and Moon are Yogakārakas; Jupiter benefic, Mars neutral. <b>Sagittarius</b> — Sun and Mercury are Yogakārakas; Mars and Sun benefic, Jupiter neutral. <b>Capricorn</b> — Venus and Mercury benefics, Venus is Yogakāraka, Saturn neutral. <b>Aquarius</b> — Venus and Saturn benefics, Venus is Yogakāraka, Mercury ordinarily good. <b>Pisces</b> — Mars and Jupiter are Yogakārakas; Moon and Mars benefics.</p>
+          <p style="margin-top:10px;">A Yogakāraka's Daśā gives auspicious results, though it sometimes cannot deliver those results independently in its own Mahādaśā — it may simply not "come" during the native's life, or arrive only at the very end. In that case it may transfer its results through whichever planet it is most intimately connected to by position, in this order of priority: (i) through any combining planets; (ii) through planets it aspects; (iii) failing either, through some other planet — one occupying its sign, or similar to it in nature (the rules of Sambandhi and Sahadharmi govern how fully this transfer works). A combust or retrograde Yogakāraka will not wholly refuse good results — it may delay them or add obstacles, but will not deny what's due to the native. A badly placed Yogakāraka, a weak horoscope overall, or a Yogakāraka tied to a malefic planet or house will reduce the good results.</p>
+        </div>
+
+        <div class="rule-box">
+          <h4>Daśā of a Planet in Janma / Vipat / Pratyari / Vadha Tārā</h4>
+          <p style="color:#A79E80; font-size:14px;">(This "Tārā" is a category counted from the birth Nakṣatra, distinct from "Tara Lagna" under Special Lagnas.)</p>
+          <p style="margin-top:10px;"><b>Janma Tārā</b> connects to core identity, self‑nature, physical body and primary disposition. Its Daśā brings deep personal focus, self‑realisation and new beginnings, though it can also bring mental stress or sensitivity, since it directly mirrors one's ego and mind (the Moon).</p>
+          <p style="margin-top:10px;"><b>Vipat Tārā</b> signifies adversity, unexpected hurdles, delays and challenges. A planet here tends to restrict or complicate its normal positive results — even naturally benefic planets may yield frustrating or delayed outcomes. This Daśā commonly highlights stress around finances, minor health friction, or resistance in daily undertakings.</p>
+          <p style="margin-top:10px;"><b>Pratyari Tārā</b> activates opponents, adversaries and competitive or challenging themes during its operative Daśā — bringing delays, conflict, mental friction, or dealings with opposition and competitors.</p>
+          <p style="margin-top:10px;"><b>Vadha Tārā</b> (also called Naidhana Tārā) is associated with destruction or great pain. It often brings intense hardship, mental stress, obstacles or health challenges; considered strained, weak or reactive and prone to triggering crisis points, it can bring struggle in career, personal life, finances, and vulnerability in health.</p>
+        </div>
+
+        <div class="rule-box">
+          <h4>Ātmakāraka Daśā</h4>
+          <p>The Daśā of the Ātmakāraka — the planet holding the highest degree in the birth chart — acts as a profound soul‑awakening phase: intense life lessons, ego‑purification, and a deep realignment with one's core life purpose, weighted heavily toward spiritual growth over material comfort. It confronts deep‑seated patterns, illusions or rigid ego beliefs, and often triggers major, life‑altering events or realisations that shift perception permanently. If the Ātmakāraka is well‑placed and strong in the birth chart, it can bring profound achievement and success; if afflicted, it may show up instead as outer crisis, friction, or emotional and physical strain meant to teach resilience. A natural malefic acting as Ātmakāraka tends to demand rigorous endurance and deep renunciation; a natural benefic tends to facilitate smoother growth and wisdom.</p>
+          <p style="margin-top:10px;">The Mahādaśā of the Ātmakāraka is not always challenging — if it is strongly placed in both D‑1 and D‑9, the native can obtain very auspicious results, with name and fame earned in this Daśā; if it is negatively placed in both, the native can face real challenges during it. Mahādeva Pathak, an eminent 19th‑century astrologer, states in his <i>Jātaka Tattwa</i> (V‑36) that during the Bhukti of the Ātmakāraka planet, a fall from one's position and loss may be experienced — the Daśā of the Ātmakāraka is attributed the trait of a "fall from height." Depending on how the Ātmakāraka planet is placed and what lordship, friendship and strength it holds, this attribute can appear as a literal fall from height, a proverbial fall from a high rank, a loss, or a decline — this does not mean the entire Ātmakāraka Daśā turns bad, but this particular attribute tends to attach to it regardless. Maharishi Jaimini directly refers to this in various forms, from a fall from a horse to a fall from a high position through decline in status or post — the horoscope's overall affliction decides whether, and what kind of, downfall is indicated; growth and wellbeing can and will still be part of the Daśā if the planet is otherwise well placed, but the attribute mentioned tends to materialise nonetheless.</p>
+          <p style="margin-top:10px;">This rule cannot be read in isolation — it sits within the broader framework of Sadharmi and Sambandhi (sub‑lord to major‑lord relationships), outside of which a sub‑lord cannot give a fully independent result. Even an Ātmakāraka that is Adharmi and Asambandhi to the major lord still gives results according to its own maleficence or beneficence: an auspicious Ātmakāraka gives auspicious results — it is specifically an inauspicious, afflicted, badly placed Ātmakāraka that can give adverse results, such as a fall from position or troubles of serious import, in its Bhukti, and such an Ātmakāraka may deliver a heavier blow than other planets do in their own Bhuktis.</p>
+        </div>
+      </div>
+    </section>
+
     <footer class="page">
       ICAS‑Bangalore II — Jaimini Paddhati Notes · Faculty: Umesh K. Mehendale · For internal circulation among ICAS students only, not for external or commercial use.
     </footer>
   </main>
 </div>
+
 
 <script>
 /* ================= DATA ================= */
@@ -1212,6 +1497,51 @@ function initArgalaExplorer(){
     });
   }
 }
+
+function renderSimpleChipNav(chipsId, sections){
+  const chips = document.getElementById(chipsId);
+  if(!chips) return;
+  chips.innerHTML = '';
+  const allChip = document.createElement('button');
+  allChip.className='chip active'; allChip.textContent='All'; allChip.dataset.target='all';
+  chips.appendChild(allChip);
+  sections.forEach(s=>{
+    const chip=document.createElement('button');
+    chip.className='chip'; chip.textContent=s.label;
+    chip.dataset.target=s.id;
+    chips.appendChild(chip);
+  });
+  chips.addEventListener('click', e=>{
+    if(e.target.tagName!=='BUTTON') return;
+    chips.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    e.target.classList.add('active');
+    const t = e.target.dataset.target;
+    if(t==='all'){
+      sections.forEach(s=>{ const el=document.getElementById(s.id); if(el) el.style.display='block'; });
+    } else {
+      sections.forEach(s=>{ const el=document.getElementById(s.id); if(el) el.style.display = (s.id===t?'block':'none'); });
+      const target = document.getElementById(t);
+      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  });
+}
+
+renderSimpleChipNav('chipsLagnas', [
+  {id:'lg-hora', label:'Hora'},
+  {id:'lg-ghati', label:'Ghati'},
+  {id:'lg-bhava', label:'Bhava'},
+  {id:'lg-varnada', label:'Varnada'},
+  {id:'lg-divya', label:'Divya'},
+  {id:'lg-savayava', label:'Savayava Hora'},
+  {id:'lg-adhana', label:'Adhana'},
+  {id:'lg-tripravana', label:'Tripravana'},
+  {id:'lg-tara', label:'Tara'}
+]);
+
+renderSimpleChipNav('chipsDashas', [
+  {id:'da-pairs', label:'Planetary Pairs'},
+  {id:'da-conditions', label:'Special Conditions'}
+]);
 
 renderKarakamsha();
 renderUpapada();
